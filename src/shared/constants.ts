@@ -1,3 +1,5 @@
+export const APP_NAME = 'Writan';
+
 export const WRITAN_DIR_NAME = '.writan';
 export const WRITAN_DATA_SUBDIR = 'data';
 export const WRITAN_DATABASE_NAME = 'writan.db';
@@ -13,3 +15,7 @@ export const EXPORT_FORMATS = ['.docx', '.pdf', '.txt', '.md', '.odt', '.epub'] 
 
 export type ImportFormat = (typeof IMPORT_FORMATS)[number];
 export type ExportFormat = (typeof EXPORT_FORMATS)[number];
+
+// Backwards compatible aliases used by the initial scaffold.
+export const SUPPORTED_IMPORT_FORMATS: readonly string[] = IMPORT_FORMATS;
+export const SUPPORTED_EXPORT_FORMATS: readonly string[] = EXPORT_FORMATS;

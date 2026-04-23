@@ -1,11 +1,16 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { dialog, ipcMain as electronIpcMain, type IpcMain } from 'electron';
 import { marked } from 'marked';
 import { Document, Packer, Paragraph } from 'docx';
 import JSZip from 'jszip';
 import pdfParse from 'pdf-parse';
 import PDFDocument from 'pdfkit';
-import { MAX_IMPORT_FILE_SIZE_BYTES } from '../../shared/constants';
+import {
+  MAX_IMPORT_FILE_SIZE_BYTES,
+  SUPPORTED_EXPORT_FORMATS,
+  SUPPORTED_IMPORT_FORMATS,
+} from '../../shared/constants';
 import type { ExportRequest, ImportedDocument } from '../../shared/types';
 import { logger } from '../utils/logger';
 
@@ -173,7 +178,7 @@ async function exportDocument(req: ExportRequest): Promise<void> {
   throw new Error(`Unsupported export format: ${ext}`);
 }
 
-export function registerFileHandlers(ipcMain: IpcMainLike): void {
+export function registerFileHandlers(ipcMain: IpcMainLike | IpcMain = electronIpcMain): void {
   ipcMain.handle('file:import', async (_event, filePath: string) => {
     try {
       const result = await importFile(filePath);
@@ -194,6 +199,22 @@ export function registerFileHandlers(ipcMain: IpcMainLike): void {
       logger.error('Export failed', { outputPath: request.outputPath, error: String(error) });
       return { ok: false, error: (error as Error).message };
     }
+  });
+
+  // Backwards compatible scaffold dialog channels
+  ipcMain.handle('file:openDialog', async () => {
+    const result = await dialog.showOpenDialog({
+      properties: ['openFile'],
+      filters: [{ name: 'Supported files', extensions: SUPPORTED_IMPORT_FORMATS.map((ext) => ext.slice(1)) }],
+    });
+    return result.filePaths;
+  });
+
+  ipcMain.handle('file:saveDialog', async () => {
+    const result = await dialog.showSaveDialog({
+      filters: [{ name: 'Export formats', extensions: SUPPORTED_EXPORT_FORMATS.map((ext) => ext.slice(1)) }],
+    });
+    return result.filePath;
   });
 }
 

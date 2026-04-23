@@ -1,3 +1,4 @@
+import { ipcMain as electronIpcMain, type IpcMain } from 'electron';
 import { getDatabase, resetDatabase } from '../db/database';
 
 interface IpcMainLike {
@@ -17,7 +18,7 @@ const ALLOWED_TABLES = new Set([
   'aiSettings',
 ]);
 
-export function registerDatabaseHandlers(ipcMain: IpcMainLike): void {
+export function registerDatabaseHandlers(ipcMain: IpcMainLike | IpcMain = electronIpcMain): void {
   const db = getDatabase();
   const countResolvers: Record<string, () => number> = {
     projects: () => (db.prepare('SELECT COUNT(*) as count FROM projects').get() as { count: number }).count,

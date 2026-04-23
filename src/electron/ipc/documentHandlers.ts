@@ -1,3 +1,4 @@
+import { ipcMain as electronIpcMain, type IpcMain } from 'electron';
 import { getDatabase } from '../db/database';
 import { DatabaseQueries } from '../db/queries';
 import { logger } from '../utils/logger';
@@ -6,9 +7,12 @@ interface IpcMainLike {
   handle(channel: string, listener: (_event: unknown, ...args: any[]) => any): void;
 }
 
-export function registerDocumentHandlers(ipcMain: IpcMainLike): void {
+let lastSaved = '';
+
+export function registerDocumentHandlers(ipcMain: IpcMainLike | IpcMain = electronIpcMain): void {
   const queries = new DatabaseQueries(getDatabase());
 
+  // Phase 1 document lifecycle handlers
   ipcMain.handle('document:createProject', (_event, payload) => {
     try {
       return { ok: true, data: queries.createProject(payload) };
@@ -43,8 +47,14 @@ export function registerDocumentHandlers(ipcMain: IpcMainLike): void {
     }
   });
 
-  ipcMain.handle('document:autoSave', (_event, payload: { id: string; content: string }) => {
+  ipcMain.handle('document:autoSave', (_event, payload: { id: string; content: string } | string) => {
     try {
+      // Backwards compatible: scaffold autoSave passed a raw string with no doc id.
+      if (typeof payload === 'string') {
+        lastSaved = payload;
+        return { ok: true, lastSavedAt: new Date().toISOString() };
+      }
+
       const updated = queries.saveDocument(payload.id, payload.content);
       queries.createVersion(payload.id, payload.content, true);
       return { ok: true, data: updated };
@@ -76,4 +86,8 @@ export function registerDocumentHandlers(ipcMain: IpcMainLike): void {
   ipcMain.handle('document:list', (_event, projectId: string) => ({ ok: true, data: queries.listDocuments(projectId) }));
   ipcMain.handle('document:stats', (_event, content: string) => ({ ok: true, data: queries.documentStats(content) }));
   ipcMain.handle('document:search', (_event, projectId: string, query: string) => ({ ok: true, data: queries.searchDocuments(projectId, query) }));
+
+  // Backwards compatible scaffold channels
+  ipcMain.handle('document:new', () => ({ title: 'Untitled Manuscript', content: '' }));
+  ipcMain.handle('document:lastSaved', () => lastSaved);
 }

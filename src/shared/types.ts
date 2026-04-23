@@ -1,5 +1,14 @@
 import type { ExportFormat, ImportFormat } from './constants';
 
+export type ThemeMode = 'light' | 'dark' | 'system';
+
+export interface ProjectMetadata {
+  id: string;
+  title: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface Project {
   id: string;
   name: string;

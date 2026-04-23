@@ -1,7 +1,7 @@
 import type { DatabaseHealthResult, DatabaseResetMode } from '../types/database';
 
 async function invoke<T>(channel: string, ...args: unknown[]): Promise<T> {
-  const response = await window.electronAPI.invoke<T>(channel, ...args);
+  const response = await window.writan.invoke<T>(channel, ...args);
   if (!response.ok || response.data === undefined) throw new Error(response.error ?? `${channel} failed`);
   return response.data;
 }
