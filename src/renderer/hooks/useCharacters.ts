@@ -29,6 +29,6 @@ export function useCharacters(projectId: string) {
         });
       },
     }),
-    [projectId, state.characters, state.relationships]
+    [state.characters, state.relationships]
   );
 }

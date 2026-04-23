@@ -22,6 +22,7 @@ export function EditorMentions({
   plotPoints: PlotPoint[];
 }) {
   const [query, setQuery] = useState('');
+  const [cursorPosition, setCursorPosition] = useState(0);
 
   const mentions = useMemo(() => parseMentions(value), [value]);
 
@@ -32,7 +33,9 @@ export function EditorMentions({
         onChange={(event) => onChange(event.target.value)}
         onKeyUp={(event) => {
           const target = event.target as HTMLTextAreaElement;
-          const cursorText = target.value.slice(0, target.selectionStart || 0);
+          const cursor = target.selectionStart || 0;
+          setCursorPosition(cursor);
+          const cursorText = target.value.slice(0, cursor);
           const atIndex = cursorText.lastIndexOf('@');
           setQuery(atIndex >= 0 ? cursorText.slice(atIndex + 1) : '');
         }}
@@ -44,7 +47,21 @@ export function EditorMentions({
           characters={characters}
           locations={locations}
           plotPoints={plotPoints}
-          onSelect={(mention) => onChange(`${value} ${mention}`.trim())}
+          onSelect={(mention) => {
+            const cursor = cursorPosition || value.length;
+            const before = value.slice(0, cursor);
+            const after = value.slice(cursor);
+            const atIndex = before.lastIndexOf('@');
+
+            if (atIndex < 0) {
+              onChange(`${value} ${mention}`.trim());
+              return;
+            }
+
+            const prefix = before.slice(0, atIndex);
+            onChange(`${prefix}${mention} ${after}`.trimEnd());
+            setQuery('');
+          }}
         />
       ) : null}
       <small>Mentions: {mentions.join(', ') || 'none'}</small>

@@ -37,7 +37,7 @@ export function TimelineView({
         </select>
         <TimelineZoom zoom={zoom} onZoom={setZoom} />
       </div>
-      <div style={{ fontSize: `${1 * zoom}rem` }}>
+      <div style={{ fontSize: `${zoom}rem` }}>
         <ol>
           {ordered.map((event) => (
             <li key={event.id}>

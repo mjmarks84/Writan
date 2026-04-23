@@ -8,6 +8,14 @@ import { plotService } from '../services/plotService';
 import { themeService } from '../services/themeService';
 import { timelineService } from '../services/timelineService';
 
+const SIMPLE_DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
+const isValidISODate = (value: string): boolean => {
+  if (!SIMPLE_DATE_PATTERN.test(value)) return false;
+  const [year, month, day] = value.split('-').map(Number);
+  const date = new Date(Date.UTC(year, month - 1, day));
+  return date.getUTCFullYear() === year && date.getUTCMonth() === month - 1 && date.getUTCDate() === day;
+};
+
 export function useStoryBible(projectId: string) {
   const [state, setState] = useState<StoryBibleState>(storyBibleStore.getState());
   const [loading, setLoading] = useState(false);
@@ -26,7 +34,7 @@ export function useStoryBible(projectId: string) {
       timelineService.list(projectId),
       themeService.list(projectId),
       crossReferenceService.list(projectId),
-    ])
+      ])
       .then(([characters, relationships, locations, plotPoints, timelineEvents, themes, crossReferences]) => {
         if (!mounted) return;
         storyBibleStore.setState({
@@ -38,6 +46,9 @@ export function useStoryBible(projectId: string) {
           themes,
           crossReferences,
         });
+      })
+      .catch((error) => {
+        console.error('Failed to load Story Bible data', error);
       })
       .finally(() => {
         if (mounted) setLoading(false);
@@ -73,7 +84,7 @@ export function useStoryBible(projectId: string) {
     });
 
     state.timelineEvents.forEach((event) => {
-      if (event.eventDate && Number.isNaN(Date.parse(event.eventDate))) {
+      if (event.eventDate && !isValidISODate(event.eventDate)) {
         issues.push({
           id: `invalid-date-${event.id}`,
           level: 'warning',

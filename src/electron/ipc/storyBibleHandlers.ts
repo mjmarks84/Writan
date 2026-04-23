@@ -273,22 +273,99 @@ export function registerStoryBibleHandlers(ipcMain: IpcMainLike, db: SQLiteLike)
   });
 
   const entityConfig = {
-    locations: { table: 'locations', title: 'name' },
-    plotPoints: { table: 'plotPoints', title: 'title' },
-    timelineEvents: { table: 'timelineEvents', title: 'title' },
-    themes: { table: 'themes', title: 'name' },
+    locations: {
+      table: 'locations',
+      title: 'name',
+      columns: [
+        'id',
+        'projectId',
+        'name',
+        'type',
+        'region',
+        'description',
+        'climate',
+        'geography',
+        'culture',
+        'population',
+        'economy',
+        'history',
+        'imageUrl',
+        'mapUrl',
+        'tags',
+        'createdAt',
+        'updatedAt',
+      ],
+    },
+    plotPoints: {
+      table: 'plotPoints',
+      title: 'title',
+      columns: [
+        'id',
+        'projectId',
+        'title',
+        'description',
+        'plotType',
+        'order',
+        'importance',
+        'connectedCharacters',
+        'connectedLocations',
+        'connectedThemes',
+        'timelinePosition',
+        'createdAt',
+        'updatedAt',
+      ],
+    },
+    timelineEvents: {
+      table: 'timelineEvents',
+      title: 'title',
+      columns: [
+        'id',
+        'projectId',
+        'title',
+        'description',
+        'eventType',
+        'eventDate',
+        'order',
+        'importance',
+        'connectedCharacters',
+        'connectedLocations',
+        'connectedPlots',
+        'createdAt',
+        'updatedAt',
+      ],
+    },
+    themes: {
+      table: 'themes',
+      title: 'name',
+      columns: [
+        'id',
+        'projectId',
+        'name',
+        'description',
+        'thematicElements',
+        'connectedCharacters',
+        'connectedPlotPoints',
+        'symbolism',
+        'color',
+        'createdAt',
+        'updatedAt',
+      ],
+    },
   } as const;
 
   (Object.keys(entityConfig) as (keyof typeof entityConfig)[]).forEach((entityKey) => {
-    const { table } = entityConfig[entityKey];
+    const { table, columns: allowedColumns } = entityConfig[entityKey];
 
     ipcMain.handle(`storyBible:${entityKey}:list`, (_e, projectId: string) => {
       const rows = db.prepare(`SELECT * FROM ${table} WHERE projectId = ? ORDER BY updatedAt DESC`).all(projectId);
       return rows.map(transformEntityRow);
     });
 
-    ipcMain.handle(`storyBible:${entityKey}:save`, (_e, payload: any) => {
-      const columns = Object.keys(payload);
+    ipcMain.handle(`storyBible:${entityKey}:save`, (_e, payload: Record<string, unknown>) => {
+      const columns = Object.keys(payload).filter((column) => (allowedColumns as readonly string[]).includes(column));
+      if (!columns.length || !columns.includes('id') || !columns.includes('projectId')) {
+        throw new Error(`Invalid ${entityKey} payload.`);
+      }
       const values = columns.map((column) => {
         const value = payload[column];
         if (Array.isArray(value) || (value && typeof value === 'object')) {
@@ -362,7 +439,12 @@ export function registerStoryBibleHandlers(ipcMain: IpcMainLike, db: SQLiteLike)
     const includeType = (type: StoryBibleSearchResult['type']) =>
       !filters.types?.length || filters.types.includes(type);
 
-    const toResults = (rows: any[], type: StoryBibleSearchResult['type'], titleKey: string, subtitleKey?: string) =>
+    const toResults = (
+      rows: Array<Record<string, unknown>>,
+      type: StoryBibleSearchResult['type'],
+      titleKey: string,
+      subtitleKey?: string
+    ) =>
       rows
         .map(transformEntityRow)
         .filter((row) => {

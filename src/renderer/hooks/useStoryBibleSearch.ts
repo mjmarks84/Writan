@@ -11,7 +11,8 @@ export function useStoryBibleSearch(projectId: string) {
       const found = await storyBibleSearchService.search(projectId, filters);
       setResults(found);
       if (filters.query?.trim()) {
-        setHistory((prev) => [filters.query!.trim(), ...prev.filter((entry) => entry !== filters.query)].slice(0, 10));
+        const normalizedQuery = filters.query.trim();
+        setHistory((prev) => [normalizedQuery, ...prev.filter((entry) => entry !== normalizedQuery)].slice(0, 10));
       }
       return found;
     },

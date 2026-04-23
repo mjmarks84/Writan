@@ -15,6 +15,7 @@ export interface Character extends BaseEntity {
   role?: string;
   archetype?: string;
   age?: number;
+  gender?: string;
   occupation?: string;
   physicalDescription?: string;
   personality?: string;
