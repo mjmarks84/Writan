@@ -16,7 +16,7 @@ const TABS: { id: AITabId; label: string }[] = [
   { id: 'settings', label: 'Settings' }
 ];
 
-export const AIPanel = () => {
+export function AIPanel() {
   const [activeTab, setActiveTab] = useState<AITabId>('brainstorm');
 
   const content = useMemo(() => {
@@ -39,11 +39,20 @@ export const AIPanel = () => {
   }, [activeTab]);
 
   return (
-    <aside aria-label="AI Assistant Panel">
-      <h2>AI Assistant</h2>
-      <nav aria-label="AI tabs">
+    <aside
+      aria-label="AI Assistant Panel"
+      className="flex h-full flex-col gap-4 overflow-auto border-l border-slate-200 p-3 dark:border-slate-700"
+    >
+      <h2 className="text-lg font-bold">AI Assistant</h2>
+      <nav aria-label="AI tabs" className="flex flex-wrap gap-2">
         {TABS.map((tab) => (
-          <button key={tab.id} type="button" onClick={() => setActiveTab(tab.id)} aria-pressed={activeTab === tab.id}>
+          <button
+            key={tab.id}
+            type="button"
+            onClick={() => setActiveTab(tab.id)}
+            aria-pressed={activeTab === tab.id}
+            className="rounded border border-slate-300 px-2 py-1 text-xs dark:border-slate-600"
+          >
             {tab.label}
           </button>
         ))}
@@ -51,4 +60,4 @@ export const AIPanel = () => {
       {content}
     </aside>
   );
-};
+}

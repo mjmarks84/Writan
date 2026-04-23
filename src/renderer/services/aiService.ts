@@ -1,4 +1,4 @@
-import { AIProviderId, AIRequest, AIResponse, AISettings } from '../types/ai';
+import { AIConnectionStatus, AIProviderId, AIRequest, AIResponse, AISettings } from '../types/ai';
 
 type IPCBridge = {
   invoke: <T>(channel: string, ...args: unknown[]) => Promise<T>;
@@ -17,7 +17,7 @@ const bridge: IPCBridge =
   } as IPCBridge);
 
 export const aiService = {
-  checkConnection: () => bridge.invoke('ai:checkConnection'),
+  checkConnection: () => bridge.invoke<AIConnectionStatus[]>('ai:checkConnection'),
   listModels: (provider: AIProviderId) => bridge.invoke<string[]>('ai:listModels', provider),
   brainstorm: (request: AIRequest) => bridge.invoke<AIResponse>('ai:brainstorm', request),
   getSuggestions: (request: AIRequest) => bridge.invoke<AIResponse>('ai:getSuggestions', request),
@@ -27,5 +27,5 @@ export const aiService = {
   analyzeStyle: (request: AIRequest) => bridge.invoke<AIResponse>('ai:analyzeStyle', request),
   saveSettings: (settings: AISettings) => bridge.invoke<AISettings>('ai:saveSettings', settings),
   getSettings: () => bridge.invoke<AISettings>('ai:getSettings'),
-  testConnection: (endpoint: string) => bridge.invoke('ai:testConnection', endpoint)
+  testConnection: (endpoint: string) => bridge.invoke<{ endpoint: string; reachable: boolean }>('ai:testConnection', endpoint)
 };
