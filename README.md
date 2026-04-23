@@ -1,31 +1,22 @@
 # Writan
 
-Writan is a desktop novel-writing workspace scaffold built with Electron + React + TypeScript.
+Novel writing app.
 
-## Tech stack
-- Electron
-- React + TypeScript
-- Tailwind CSS (dark mode via class strategy)
-- SQLite (local project metadata bootstrap)
-- Zustand state stores
+## Phase 2 editor scaffold
 
-## Quick start
-1. Install dependencies:
-   ```bash
-   npm install
-   ```
-2. Build all targets:
-   ```bash
-   npm run build
-   ```
-3. Launch app:
-   ```bash
-   npm run dev
-   ```
+This branch includes a TipTap-based rich text editor scaffold with:
 
-## Project layout
-The scaffold includes:
-- Electron main process + preload IPC bridge (`src/electron`)
-- Renderer app with three-panel writing layout (`src/renderer`)
-- Shared constants/types (`src/shared`)
-- Packaging config (`electron-builder.yml`)
+- formatting toolbar (styles, blocks, lists, table, alignment, color, undo/redo)
+- document outline sidebar with chapter/scene search and jump
+- find and find/replace modal (regex option)
+- writing statistics in status bar and stats panel
+- editor settings, distraction-free toggle, and theme/zen/typewriter mode toggles
+
+### Run
+
+```bash
+npm install
+npm run test
+npm run build
+npm run dev
+```
