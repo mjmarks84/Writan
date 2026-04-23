@@ -1,0 +1,53 @@
+CREATE TABLE IF NOT EXISTS characters (
+  id TEXT PRIMARY KEY,
+  projectId TEXT NOT NULL,
+  name TEXT NOT NULL,
+  role TEXT,
+  description TEXT,
+  imageUrl TEXT,
+  tags TEXT,
+  createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (projectId) REFERENCES projects(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS locations (
+  id TEXT PRIMARY KEY,
+  projectId TEXT NOT NULL,
+  name TEXT NOT NULL,
+  description TEXT,
+  imageUrl TEXT,
+  tags TEXT,
+  createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (projectId) REFERENCES projects(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS plotPoints (
+  id TEXT PRIMARY KEY,
+  projectId TEXT NOT NULL,
+  title TEXT NOT NULL,
+  description TEXT,
+  type TEXT,
+  "order" INTEGER DEFAULT 0,
+  createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (projectId) REFERENCES projects(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS timelineEvents (
+  id TEXT PRIMARY KEY,
+  projectId TEXT NOT NULL,
+  title TEXT NOT NULL,
+  description TEXT,
+  date TEXT,
+  "order" INTEGER DEFAULT 0,
+  createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (projectId) REFERENCES projects(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS themes (
+  id TEXT PRIMARY KEY,
+  projectId TEXT NOT NULL,
+  name TEXT NOT NULL,
+  description TEXT,
+  createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (projectId) REFERENCES projects(id) ON DELETE CASCADE
+);
