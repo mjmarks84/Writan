@@ -30,3 +30,4 @@
 .btn:hover { transform: translateY(-1px); box-shadow: var(--shadow-small); }
 .btn-primary { background: var(--color-primary); color: white; }
 .btn-secondary { background: var(--color-surface); border-color: var(--color-border); color: var(--color-text); }
+.btn-tertiary { background: transparent; border-color: transparent; color: var(--color-primary); }
