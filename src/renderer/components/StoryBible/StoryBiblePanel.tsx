@@ -25,8 +25,9 @@ import { TimelineView } from './Timeline/TimelineView';
 type Tab = 'characters' | 'locations' | 'plots' | 'timeline' | 'themes';
 
 const uuid = () => (typeof crypto !== 'undefined' && 'randomUUID' in crypto ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`);
+const DEFAULT_PROJECT_ID = 'default-project';
 
-export function StoryBiblePanel({ projectId }: { projectId: string }) {
+export function StoryBiblePanel({ projectId = DEFAULT_PROJECT_ID }: { projectId?: string }) {
   const { timelineEvents, stats } = useStoryBible(projectId);
   const { characters, relationships, saveCharacter } = useCharacters(projectId);
   const { locations, saveLocation } = useLocations(projectId);
@@ -51,7 +52,7 @@ export function StoryBiblePanel({ projectId }: { projectId: string }) {
   );
 
   return (
-    <aside style={{ display: 'grid', gap: 12 }}>
+    <aside style={{ display: 'grid', gap: 12 }} className="flex h-full flex-col overflow-auto border-r border-slate-200 p-3 dark:border-slate-700">
       <header>
         <h2>Story Bible</h2>
         <small>

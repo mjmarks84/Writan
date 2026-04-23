@@ -177,7 +177,9 @@ export function initStoryBibleSchema(db: SQLiteLike): void {
   db.exec(STORY_BIBLE_SCHEMA_SQL);
 }
 
-const transformEntityRow = <T extends Record<string, any>>(row: T): T => ({
+type EntityRow = Record<string, unknown>;
+
+const transformEntityRow = (row: EntityRow): EntityRow => ({
   ...row,
   tags: parseJSON<string[]>(row.tags, []),
   connectedCharacters: parseJSON<string[]>(row.connectedCharacters, []),
@@ -191,8 +193,8 @@ export function registerStoryBibleHandlers(ipcMain: IpcMainLike, db: SQLiteLike)
   initStoryBibleSchema(db);
 
   ipcMain.handle('storyBible:characters:list', (_e, projectId: string) => {
-    const rows = db.prepare<Character>('SELECT * FROM characters WHERE projectId = ? ORDER BY name').all(projectId);
-    return rows.map(transformEntityRow);
+    const rows = db.prepare<EntityRow>('SELECT * FROM characters WHERE projectId = ? ORDER BY name').all(projectId);
+    return rows.map(transformEntityRow) as unknown as Character[];
   });
 
   ipcMain.handle('storyBible:characters:save', (_e, character: Character) => {
@@ -357,7 +359,7 @@ export function registerStoryBibleHandlers(ipcMain: IpcMainLike, db: SQLiteLike)
     const { table, columns: allowedColumns } = entityConfig[entityKey];
 
     ipcMain.handle(`storyBible:${entityKey}:list`, (_e, projectId: string) => {
-      const rows = db.prepare(`SELECT * FROM ${table} WHERE projectId = ? ORDER BY updatedAt DESC`).all(projectId);
+      const rows = db.prepare<EntityRow>(`SELECT * FROM ${table} WHERE projectId = ? ORDER BY updatedAt DESC`).all(projectId);
       return rows.map(transformEntityRow);
     });
 
@@ -440,7 +442,7 @@ export function registerStoryBibleHandlers(ipcMain: IpcMainLike, db: SQLiteLike)
       !filters.types?.length || filters.types.includes(type);
 
     const toResults = (
-      rows: Array<Record<string, unknown>>,
+      rows: EntityRow[],
       type: StoryBibleSearchResult['type'],
       titleKey: string,
       subtitleKey?: string
@@ -453,31 +455,57 @@ export function registerStoryBibleHandlers(ipcMain: IpcMainLike, db: SQLiteLike)
           return text.includes(query);
         })
         .map<StoryBibleSearchResult>((row) => ({
-          id: row.id,
+          id: String(row.id ?? ''),
           type,
-          title: row[titleKey],
-          subtitle: subtitleKey ? row[subtitleKey] : undefined,
-          preview: row.description,
-          tags: row.tags ?? [],
+          title: String(row[titleKey] ?? ''),
+          subtitle: subtitleKey ? String(row[subtitleKey] ?? '') : undefined,
+          preview: typeof row.description === 'string' ? row.description : undefined,
+          tags: Array.isArray(row.tags) ? row.tags.map((tag) => String(tag)) : [],
         }));
 
     const results: StoryBibleSearchResult[] = [];
     if (includeType('character')) {
-      results.push(...toResults(db.prepare('SELECT * FROM characters WHERE projectId = ?').all(projectId), 'character', 'name', 'role'));
+      results.push(
+        ...toResults(
+          db.prepare<EntityRow>('SELECT * FROM characters WHERE projectId = ?').all(projectId),
+          'character',
+          'name',
+          'role'
+        )
+      );
     }
     if (includeType('location')) {
-      results.push(...toResults(db.prepare('SELECT * FROM locations WHERE projectId = ?').all(projectId), 'location', 'name', 'type'));
+      results.push(
+        ...toResults(
+          db.prepare<EntityRow>('SELECT * FROM locations WHERE projectId = ?').all(projectId),
+          'location',
+          'name',
+          'type'
+        )
+      );
     }
     if (includeType('plotPoint')) {
-      results.push(...toResults(db.prepare('SELECT * FROM plotPoints WHERE projectId = ?').all(projectId), 'plotPoint', 'title', 'plotType'));
+      results.push(
+        ...toResults(
+          db.prepare<EntityRow>('SELECT * FROM plotPoints WHERE projectId = ?').all(projectId),
+          'plotPoint',
+          'title',
+          'plotType'
+        )
+      );
     }
     if (includeType('timelineEvent')) {
       results.push(
-        ...toResults(db.prepare('SELECT * FROM timelineEvents WHERE projectId = ?').all(projectId), 'timelineEvent', 'title', 'eventType')
+        ...toResults(
+          db.prepare<EntityRow>('SELECT * FROM timelineEvents WHERE projectId = ?').all(projectId),
+          'timelineEvent',
+          'title',
+          'eventType'
+        )
       );
     }
     if (includeType('theme')) {
-      results.push(...toResults(db.prepare('SELECT * FROM themes WHERE projectId = ?').all(projectId), 'theme', 'name'));
+      results.push(...toResults(db.prepare<EntityRow>('SELECT * FROM themes WHERE projectId = ?').all(projectId), 'theme', 'name'));
     }
 
     if (filters.tags?.length) {
