@@ -3,7 +3,10 @@ import { useDocumentStore } from '../../store/documentStore';
 
 export function WordProcessor() {
   const { document, setContent } = useDocumentStore();
-  const wordCount = useMemo(() => document.content.trim().split(/\s+/).filter(Boolean).length, [document.content]);
+  const wordCount = useMemo(
+    () => document.content.trim().split(/\s+/).filter(Boolean).length,
+    [document.content]
+  );
 
   return (
     <div className="flex h-full flex-col">

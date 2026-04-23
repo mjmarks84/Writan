@@ -1,0 +1,30 @@
+name: Unit & Integration Tests
+
+on:
+  push:
+    branches: [main, copilot/**]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: [20]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+      - run: npm ci
+      - run: npm run test:coverage
+      - uses: codecov/codecov-action@v4
+        with:
+          fail_ci_if_error: false
+          files: ./coverage/lcov.info
+      - name: Coverage threshold check
+        run: node -e "const f=require('./coverage/coverage-summary.json').total; if(f.lines.pct<80){process.exit(1)}"

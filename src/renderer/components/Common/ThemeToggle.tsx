@@ -5,7 +5,9 @@ export function ThemeToggle() {
 
   const applyTheme = (value: 'light' | 'dark' | 'system') => {
     setTheme(value);
-    const isDark = value === 'dark' || (value === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    const isDark =
+      value === 'dark' ||
+      (value === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
     document.documentElement.classList.toggle('dark', isDark);
   };
 

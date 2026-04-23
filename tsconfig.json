@@ -1,12 +1,17 @@
 {
   "compilerOptions": {
     "target": "ES2022",
+    "module": "ESNext",
+    "lib": ["ES2022", "DOM"],
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "moduleResolution": "Node",
-    "baseUrl": "."
-  }
+    "baseUrl": ".",
+    "jsx": "react-jsx",
+    "types": ["jest", "node"]
+  },
+  "include": ["src", "tests", "__tests__", "jest.setup.renderer.ts", "playwright.config.ts"]
 }
