@@ -18,7 +18,11 @@ export const BrainstormTab = () => {
         <input value={topic} onChange={(e) => setTopic(e.target.value)} placeholder="Topic or challenge" />
         <button type="submit" disabled={loading}>Generate</button>
       </form>
-      <ul>{history.slice(0, 5).map((item) => <li key={item.requestId}>{item.content}</li>)}</ul>
+      <ul aria-label="Brainstorm results">
+        {history.slice(0, 5).map((item) => (
+          <li key={item.requestId}>{item.content}</li>
+        ))}
+      </ul>
     </section>
   );
 };

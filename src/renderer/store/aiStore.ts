@@ -10,6 +10,7 @@ export interface AIState {
 }
 
 type Listener = (state: AIState) => void;
+type StateUpdate = Partial<AIState> | ((current: AIState) => Partial<AIState>);
 
 class SimpleAIStore {
   private state: AIState = {
@@ -26,7 +27,8 @@ class SimpleAIStore {
     return this.state;
   }
 
-  setState(partial: Partial<AIState>): void {
+  setState(update: StateUpdate): void {
+    const partial = typeof update === 'function' ? update(this.state) : update;
     this.state = { ...this.state, ...partial };
     this.listeners.forEach((listener) => listener(this.state));
   }

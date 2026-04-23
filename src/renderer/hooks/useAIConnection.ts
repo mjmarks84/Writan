@@ -2,11 +2,11 @@ import { useEffect } from 'react';
 import { useAI } from './useAI';
 
 export const useAIConnection = () => {
-  const ai = useAI();
+  const { connectionStatus, refreshConnection } = useAI();
 
   useEffect(() => {
-    void ai.refreshConnection();
-  }, []);
+    void refreshConnection();
+  }, [refreshConnection]);
 
-  return ai.connectionStatus;
+  return connectionStatus;
 };

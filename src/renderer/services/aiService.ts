@@ -4,11 +4,15 @@ type IPCBridge = {
   invoke: <T>(channel: string, ...args: unknown[]) => Promise<T>;
 };
 
+const writanBridge = (globalThis as { writan?: IPCBridge }).writan;
+
 const bridge: IPCBridge =
-  (globalThis as { writan?: IPCBridge }).writan ??
+  writanBridge ??
   ({
     invoke: async () => {
-      throw new Error('IPC bridge unavailable');
+      throw new Error(
+        'IPC bridge unavailable. Ensure the app is running in Electron, and the preload script exposes window.writan.invoke.'
+      );
     }
   } as IPCBridge);
 

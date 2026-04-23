@@ -38,11 +38,15 @@ export const registerAISettingsHandlers = (
   };
 
   const saveSettings = (settings: AISettings): AISettings => {
-    Object.values(settings.endpoints).forEach((endpoint) => {
-      if (!isLocalEndpoint(endpoint)) {
-        throw new Error('Only local endpoints are allowed when local privacy mode is enabled.');
-      }
-    });
+    if (settings.localOnlyMode) {
+      Object.values(settings.endpoints).forEach((endpoint) => {
+        if (!isLocalEndpoint(endpoint)) {
+          throw new Error(
+            `Only local endpoints are allowed when local privacy mode is enabled. Invalid endpoint: ${endpoint}`
+          );
+        }
+      });
+    }
 
     fs.mkdirSync(path.dirname(settingsPath), { recursive: true });
     fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 2), 'utf8');

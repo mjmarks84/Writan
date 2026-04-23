@@ -5,8 +5,11 @@ export const RECOMMENDED_MODELS = {
   creativeWriting: ['dolphin-mixtral', 'hermes'],
   instructionFollowing: ['openchat', 'neural-chat'],
   speed: ['orca-mini', 'phi'],
-  quality: ['mistral:7b', 'hermes-2-pro']
+  quality: ['mistral-7b', 'hermes-2-pro']
 } as const;
+
+export const AI_HISTORY_LIMIT = 200;
+export const LOCAL_ONLY_PROVIDER_IDS = ['ollama', 'lmstudio'] as const;
 
 export const DEFAULT_AI_SETTINGS: AISettings = {
   selectedProvider: 'ollama',

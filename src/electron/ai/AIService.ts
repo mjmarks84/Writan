@@ -1,4 +1,4 @@
-import { DEFAULT_AI_SETTINGS } from '../../shared/constants';
+import { AI_HISTORY_LIMIT, DEFAULT_AI_SETTINGS, LOCAL_ONLY_PROVIDER_IDS } from '../../shared/constants';
 import {
   AIConnectionStatus,
   AIProviderConfig,
@@ -12,6 +12,8 @@ import { ContextBuilder } from './ContextBuilder';
 import { PromptEngineering } from './PromptEngineering';
 import { ProviderFactory } from './providers/ProviderFactory';
 import { ResponseProcessor } from './ResponseProcessor';
+
+const CACHE_CONTEXT_PREVIEW_LENGTH = 500;
 
 export class AIService {
   private settings: AISettings;
@@ -36,7 +38,9 @@ export class AIService {
   }
 
   async checkConnections(): Promise<AIConnectionStatus[]> {
-    const providers: AIProviderId[] = ['ollama', 'lmstudio'];
+    const providers = ProviderFactory.supportedProviders().filter((provider) =>
+      Object.hasOwn(this.settings.endpoints, provider)
+    );
     const statuses = await Promise.all(
       providers.map(async (provider) => {
         const config: AIProviderConfig = {
@@ -85,7 +89,10 @@ export class AIService {
       model: this.settings.selectedModel,
       type: request.type,
       prompt: request.prompt,
-      context: request.context
+      currentText: request.context.writing.currentText.slice(-CACHE_CONTEXT_PREVIEW_LENGTH),
+      recentText: (request.context.writing.recentText ?? '').slice(-CACHE_CONTEXT_PREVIEW_LENGTH),
+      characters: (request.context.storyBible?.characters ?? []).join(','),
+      plotSummary: request.context.storyBible?.plotSummary ?? ''
     });
 
     const cached = this.responseCache.get(cacheKey);
@@ -104,7 +111,7 @@ export class AIService {
         const processed = this.responseProcessor.format(response);
         this.responseCache.set(cacheKey, processed);
         this.history.unshift(processed);
-        this.history = this.history.slice(0, 200);
+        this.history = this.history.slice(0, AI_HISTORY_LIMIT);
         return processed;
       } catch (error) {
         lastError = error;
@@ -121,13 +128,18 @@ export class AIService {
 
   private async resolveProviderOrder(): Promise<AIProviderId[]> {
     const selected = this.settings.selectedProvider;
-    const fallback = (['ollama', 'lmstudio'] as AIProviderId[]).filter((p) => p !== selected);
+    const fallback = ProviderFactory.supportedProviders().filter((provider) => provider !== selected);
 
     if (!this.settings.localOnlyMode) {
-      return [selected, ...fallback, 'llama.cpp', 'gpt4all'];
+      return [selected, ...fallback];
     }
 
-    return [selected, ...fallback];
+    return [
+      selected,
+      ...fallback.filter((provider) =>
+        (LOCAL_ONLY_PROVIDER_IDS as readonly AIProviderId[]).includes(provider)
+      )
+    ];
   }
 
   private async callProvider(provider: AIProviderId, request: AIRequest): Promise<AIResponse> {

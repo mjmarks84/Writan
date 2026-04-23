@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { aiStore } from '../store/aiStore';
 import { aiService } from '../services/aiService';
 import { AIRequest, AIResponse, AISettings } from '../types/ai';
+import { AI_HISTORY_LIMIT } from '../../shared/constants';
 
 export const useAI = () => {
   const [state, setState] = useState(aiStore.getState());
@@ -13,7 +14,10 @@ export const useAI = () => {
       aiStore.setState({ loading: true, error: null });
       try {
         const response = await action(request);
-        aiStore.setState({ loading: false, history: [response, ...aiStore.getState().history].slice(0, 200) });
+        aiStore.setState((current) => ({
+          loading: false,
+          history: [response, ...current.history].slice(0, AI_HISTORY_LIMIT)
+        }));
         return response;
       } catch (error) {
         aiStore.setState({ loading: false, error: (error as Error).message });
@@ -24,9 +28,14 @@ export const useAI = () => {
   );
 
   const refreshConnection = useCallback(async () => {
-    const statuses = await aiService.checkConnection();
-    aiStore.setState({ connectionStatus: statuses });
-    return statuses;
+    try {
+      const statuses = await aiService.checkConnection();
+      aiStore.setState({ connectionStatus: statuses, error: null });
+      return statuses;
+    } catch (error) {
+      aiStore.setState({ error: (error as Error).message });
+      throw error;
+    }
   }, []);
 
   const saveSettings = useCallback(async (settings: AISettings) => {

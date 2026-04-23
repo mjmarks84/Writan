@@ -14,6 +14,7 @@ export class ProviderFactory {
       case 'llama.cpp':
         return new Llama2Provider(config);
       case 'gpt4all':
+        // GPT4All can expose OpenAI-compatible endpoints similar to LM Studio.
         return new LMStudioProvider(config);
       default:
         throw new Error(`Unsupported provider: ${(config as { id: string }).id}`);

@@ -1,6 +1,10 @@
 import { FormEvent, useState } from 'react';
 import { useAISettings } from '../../../hooks/useAISettings';
 import { AI_PROVIDER_OPTIONS } from '../../../types/aiProviders';
+import { AIProviderId } from '../../../types/ai';
+
+const isAIProviderId = (value: string): value is AIProviderId =>
+  AI_PROVIDER_OPTIONS.some((option) => option.id === value);
 
 export const SettingsTab = () => {
   const { settings, saveSettings, testConnection, loading } = useAISettings();
@@ -26,7 +30,15 @@ export const SettingsTab = () => {
       <form onSubmit={onSave}>
         <label>
           Provider
-          <select value={provider} onChange={(e) => setProvider(e.target.value as typeof provider)}>
+          <select
+            value={provider}
+            onChange={(e) => {
+              const next = e.target.value;
+              if (isAIProviderId(next)) {
+                setProvider(next);
+              }
+            }}
+          >
             {AI_PROVIDER_OPTIONS.map((option) => (
               <option key={option.id} value={option.id}>{option.label}</option>
             ))}

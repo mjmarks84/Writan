@@ -30,7 +30,7 @@ export class ContextBuilder {
   buildWritingContext(context: AIContext, contextWindow: number): string {
     const current = context.writing.currentText ?? '';
     const recent = context.writing.recentText ?? '';
-    const clipped = `${recent}\n${current}`.slice(-contextWindow);
+    const clipped = this.truncateByBoundary(`${recent}\n${current}`, contextWindow);
 
     return ['Writing Context:', clipped, `Style analysis: ${context.writing.styleAnalysis ?? 'N/A'}`].join('\n');
   }
@@ -46,5 +46,14 @@ export class ContextBuilder {
       `Status: ${project.status ?? ''}`,
       `Progress: ${project.progress ?? ''}`
     ].join('\n');
+  }
+
+  private truncateByBoundary(input: string, maxLength: number): string {
+    if (input.length <= maxLength) return input;
+
+    const start = input.length - maxLength;
+    const sliced = input.slice(start);
+    const boundaryIndex = sliced.search(/\s/);
+    return boundaryIndex >= 0 ? sliced.slice(boundaryIndex + 1).trimStart() : sliced;
   }
 }
