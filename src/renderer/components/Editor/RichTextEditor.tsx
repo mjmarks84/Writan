@@ -10,7 +10,7 @@ import { DocumentOutline } from './DocumentOutline';
 import { FindAndReplace } from './FindAndReplace';
 import { EditorSettingsPanel } from './EditorSettingsPanel';
 import { WritingStatsPanel } from './WritingStatsPanel';
-import { DistanceFreeModeToggle } from './DistanceFreeModeToggle';
+import { DistractionFreeModeToggle } from './DistractionFreeModeToggle';
 import { EditorMenu } from './EditorMenu';
 import type { EditorSettings } from '../../types/editor';
 
@@ -76,7 +76,7 @@ export const RichTextEditor = ({ initialContent }: RichTextEditorProps) => {
           <EditorStatusBar stats={stats} autosaveStatus={autosaveStatus} />
         </section>
         <aside className="editor-right-rail">
-          <DistanceFreeModeToggle enabled={distractionFree} onToggle={setDistractionFree} />
+          <DistractionFreeModeToggle enabled={distractionFree} onToggle={setDistractionFree} />
           <EditorSettingsPanel settings={settings} onChange={setSettings} />
           <WritingStatsPanel stats={stats} />
         </aside>
