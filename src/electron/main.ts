@@ -1,19 +1,22 @@
 import path from 'node:path';
 import { app, BrowserWindow, nativeTheme } from 'electron';
-import sqlite3 from 'sqlite3';
+import { initDatabase } from './db/database';
 import { registerFileHandlers } from './ipc/fileHandlers';
 import { registerDocumentHandlers } from './ipc/documentHandlers';
 import { registerAIHandlers } from './ipc/aiHandlers';
+import { registerDatabaseHandlers } from './ipc/databaseHandlers';
+import { registerVersionHandlers } from './ipc/versionHandlers';
+import { logger } from './utils/logger';
 
 let mainWindow: BrowserWindow | null = null;
 
 function initializeDatabase() {
-  const dbPath = path.join(app.getPath('userData'), 'writan.db');
-  const db = new sqlite3.Database(dbPath);
-  db.serialize(() => {
-    db.run('CREATE TABLE IF NOT EXISTS projects (id TEXT PRIMARY KEY, title TEXT, updated_at TEXT)');
-  });
-  db.close();
+  try {
+    initDatabase();
+  } catch (error) {
+    logger.error('Failed to initialize database', { error: String(error) });
+    throw error;
+  }
 }
 
 function createWindow() {
@@ -39,6 +42,8 @@ app.whenReady().then(() => {
   initializeDatabase();
   registerFileHandlers();
   registerDocumentHandlers();
+  registerDatabaseHandlers();
+  registerVersionHandlers();
   registerAIHandlers();
   createWindow();
 

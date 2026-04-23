@@ -1,5 +1,8 @@
+import type { ExportRequest } from '../../shared/types';
+import { fileService } from './fileService';
+
 export const exportService = {
-  exportDocument: async (format: '.docx' | '.pdf' | '.txt' | '.epub') => {
-    return { ok: true, format };
-  }
+  exportDocument(request: ExportRequest): Promise<void> {
+    return fileService.exportFile(request);
+  },
 };

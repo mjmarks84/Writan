@@ -5,7 +5,9 @@ const api = {
   saveFileDialog: () => ipcRenderer.invoke('file:saveDialog') as Promise<string | undefined>,
   newDocument: () => ipcRenderer.invoke('document:new') as Promise<{ title: string; content: string }>,
   autoSave: (content: string) => ipcRenderer.invoke('document:autoSave', content),
-  brainstorm: (prompt: string) => ipcRenderer.invoke('ai:brainstorm', prompt) as Promise<{ suggestions: string[] }>
+  brainstorm: (prompt: string) => ipcRenderer.invoke('ai:brainstorm', prompt) as Promise<{ suggestions: string[] }>,
+  invoke: <T = unknown>(channel: string, ...args: unknown[]) =>
+    ipcRenderer.invoke(channel, ...args) as Promise<{ ok: boolean; data?: T; error?: string }>,
 };
 
 contextBridge.exposeInMainWorld('writan', api);
