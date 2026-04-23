@@ -1,0 +1,154 @@
+:root {
+  font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+
+.rich-editor-layout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.rich-editor-layout.dark {
+  background: #10131a;
+  color: #edf1f8;
+}
+
+.rich-editor-layout.light {
+  background: #fff;
+  color: #121212;
+}
+
+.editor-menu,
+.editor-toolbar,
+.editor-status-bar {
+  display: flex;
+  gap: 8px;
+  padding: 8px 12px;
+  border-bottom: 1px solid #2a3344;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.editor-status-bar {
+  border-top: 1px solid #2a3344;
+  border-bottom: 0;
+}
+
+.toolbar-button.active {
+  font-weight: 700;
+  background: #2f7ae5;
+  color: #fff;
+}
+
+.editor-main-grid {
+  display: grid;
+  grid-template-columns: 260px 1fr 320px;
+  min-height: 0;
+  flex: 1;
+}
+
+.document-outline,
+.editor-right-rail {
+  border-right: 1px solid #2a3344;
+  padding: 12px;
+  overflow: auto;
+}
+
+.editor-right-rail {
+  border-right: 0;
+  border-left: 1px solid #2a3344;
+}
+
+.editor-content-panel {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.editor-content-wrapper {
+  flex: 1;
+  padding: 16px;
+  overflow: auto;
+}
+
+.writan-editor-content {
+  min-height: 420px;
+  outline: none;
+}
+
+.writan-editor-content p.is-editor-empty:first-child::before {
+  color: #868e96;
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
+
+.writan-editor-content > * + * {
+  margin-top: 0.75rem;
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: grid;
+  place-items: center;
+}
+
+.modal {
+  width: 420px;
+  max-width: calc(100vw - 24px);
+  background: #fff;
+  color: #111;
+  border-radius: 10px;
+  padding: 12px;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal label {
+  display: block;
+  margin: 8px 0;
+}
+
+.modal input[type='text'],
+.modal input:not([type]),
+.modal input[type='number'] {
+  width: 100%;
+}
+
+.find-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.distraction-free .editor-main-grid {
+  grid-template-columns: 1fr;
+}
+
+.distraction-free .document-outline,
+.distraction-free .editor-right-rail {
+  display: none;
+}
+
+.zen-mode .writan-editor-content > :not(:focus-within) {
+  opacity: 0.6;
+}
+
+.typewriter-mode .editor-content-wrapper {
+  display: flex;
+  align-items: center;
+}
