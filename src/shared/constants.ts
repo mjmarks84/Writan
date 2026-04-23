@@ -1,4 +1,7 @@
+export const APP_NAME = 'Writan';
 export const APP_VERSION = '0.5.0';
+export const SUPPORTED_IMPORT_FORMATS = ['.docx', '.txt', '.md', '.odt'];
+export const SUPPORTED_EXPORT_FORMATS = ['.docx', '.pdf', '.txt', '.epub'];
 
 export const COLOR_TOKENS = {
   primary: '#2563eb',

@@ -1,4 +1,12 @@
+export type ThemeMode = 'light' | 'dark' | 'system';
 export type TimeRange = 'day' | 'week' | 'month' | 'year';
+
+export interface ProjectMetadata {
+  id: string;
+  title: string;
+  createdAt: string;
+  updatedAt: string;
+}
 
 export interface WritingEntry {
   date: string;
