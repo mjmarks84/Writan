@@ -26,5 +26,8 @@
       "version": "detect"
     }
   },
-  "ignorePatterns": ["coverage", "playwright-report"]
+  "ignorePatterns": ["coverage", "playwright-report"],
+  "rules": {
+    "react/react-in-jsx-scope": "off"
+  }
 }
