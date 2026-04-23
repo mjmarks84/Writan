@@ -2,6 +2,8 @@ import { ipcMain } from 'electron';
 import { AIService } from '../ai/AIService';
 import { AIRequest, AIResponse, AISettings } from '../../shared/types';
 
+const defaultAIService = new AIService();
+
 const toRequest = (payload: AIRequest | string, type: AIRequest['type']): AIRequest => {
   if (typeof payload === 'string') {
     return {
@@ -15,10 +17,15 @@ const toRequest = (payload: AIRequest | string, type: AIRequest['type']): AIRequ
     };
   }
 
-  return { ...payload, type };
+  if (payload.type !== type) {
+    return { ...payload, type };
+  }
+
+  return payload;
 };
 
-export function registerAIHandlers(aiService: AIService = new AIService()): void {
+export function registerAIHandlers(): void {
+  const aiService = defaultAIService;
   ipcMain.handle('ai:checkConnection', () => aiService.checkConnections());
   ipcMain.handle('ai:listModels', (_event, provider) => aiService.listModels(provider));
   ipcMain.handle('ai:brainstorm', (_event, request: AIRequest | string) =>
