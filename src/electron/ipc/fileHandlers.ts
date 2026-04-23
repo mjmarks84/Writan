@@ -3,6 +3,7 @@ import path from 'node:path';
 import { marked } from 'marked';
 import { Document, Packer, Paragraph } from 'docx';
 import JSZip from 'jszip';
+import pdfParse from 'pdf-parse';
 import PDFDocument from 'pdfkit';
 import { MAX_IMPORT_FILE_SIZE_BYTES } from '../../shared/constants';
 import type { ExportRequest, ImportedDocument } from '../../shared/types';
@@ -81,10 +82,9 @@ async function importFile(filePath: string): Promise<ImportedDocument> {
   }
 
   if (ext === '.pdf') {
-    const raw = fs.readFileSync(filePath, 'latin1');
-    const content = raw
-      .replace(/\r/g, '\n')
-      .match(/[\x20-\x7E]{4,}/g)?.join('\n') ?? '';
+    const raw = fs.readFileSync(filePath);
+    const parsed = await pdfParse(raw);
+    const content = parsed.text.trim();
 
     return {
       title: inferTitle(filePath),

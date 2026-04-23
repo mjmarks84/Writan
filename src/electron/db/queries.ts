@@ -82,15 +82,14 @@ export class DatabaseQueries {
     ).run(id, documentId, content, wordCount, isAutoSave ? 1 : 0);
 
     this.db.prepare(
-      `DELETE FROM versions
-       WHERE documentId = ?
-       AND id NOT IN (
-         SELECT id FROM versions
+      `WITH ranked AS (
+         SELECT id, ROW_NUMBER() OVER (ORDER BY createdAt DESC) as rn
+         FROM versions
          WHERE documentId = ?
-         ORDER BY createdAt DESC
-         LIMIT ?
-       )`,
-    ).run(documentId, documentId, MAX_VERSION_HISTORY);
+       )
+       DELETE FROM versions
+       WHERE id IN (SELECT id FROM ranked WHERE rn > ?)`,
+    ).run(documentId, MAX_VERSION_HISTORY);
 
     this.db.prepare(
       `DELETE FROM versions

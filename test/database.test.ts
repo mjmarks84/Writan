@@ -31,11 +31,12 @@ test('document CRUD and version limit work', () => {
   assert.equal(queries.getDocument(doc.id)?.title, 'Chapter 1');
 
   for (let i = 0; i < 25; i += 1) {
-    queries.createVersion(doc.id, `content ${i}`, true);
+    queries.createVersion(doc.id, `content ${i}`, i % 5 !== 0);
   }
 
   const versions = queries.listVersions(doc.id);
   assert.equal(versions.length <= 20, true);
+  assert.equal(versions.some((v) => v.isAutoSave === 0), true);
 
   const updated = queries.saveDocument(doc.id, 'Updated text with more words');
   assert.equal(updated.wordCount > 0, true);
