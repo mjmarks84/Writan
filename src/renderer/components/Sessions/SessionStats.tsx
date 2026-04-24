@@ -2,6 +2,12 @@ import { useEffect, useMemo, useState } from 'react';
 import { sessionService } from '../../services/sessionService';
 import type { SessionSummary } from '../../types/session';
 
+function formatHour(hour: number): string {
+  const d = new Date();
+  d.setHours(hour, 0, 0, 0);
+  return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+}
+
 function avg(nums: number[]) {
   return nums.length ? Math.round(nums.reduce((a, b) => a + b, 0) / nums.length) : 0;
 }
@@ -29,9 +35,7 @@ export function SessionStats() {
     for (const [h, w] of Object.entries(hourCounts)) {
       if (w > peakWords) { peakHour = Number(h); peakWords = w; }
     }
-    const peakLabel = peakHour >= 0
-      ? new Date(2020, 0, 1, peakHour).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-      : '—';
+    const peakLabel = peakHour >= 0 ? formatHour(peakHour) : '—';
 
     const days = new Set(sessions.map((s) => s.startTime.slice(0, 10))).size;
     const totalDays = sessions.length > 0

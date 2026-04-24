@@ -1,16 +1,11 @@
-import { useEffect } from 'react';
 import { useStreak } from '../../hooks/useStreak';
 import { StreakMilestone } from './StreakMilestone';
 
+// Local copy of STREAK_MILESTONES — renderer tsconfig rootDir restricts direct shared imports
 const STREAK_MILESTONES = [7, 14, 30, 60, 100] as const;
 
 export function StreakTracker() {
   const { streak, newMilestone, loading, dismissMilestone, updateStreak } = useStreak();
-
-  // Load streak on mount
-  useEffect(() => {
-    // Streak is auto-loaded by the hook
-  }, []);
 
   if (loading) {
     return (

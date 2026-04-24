@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useEffect, useState } from 'react';
 
 interface ZenStatusBarProps {
   wordCount: number;
@@ -15,8 +15,18 @@ function formatTime(sec: number) {
   return `${m}:${s}`;
 }
 
+function currentTimeStr() {
+  return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+}
+
 export function ZenStatusBar({ wordCount, sessionGoal, elapsedSec, hidden, textColor, backgroundColor }: ZenStatusBarProps) {
-  const now = useMemo(() => new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), []);
+  const [now, setNow] = useState(currentTimeStr);
+
+  useEffect(() => {
+    const id = setInterval(() => setNow(currentTimeStr()), 30000);
+    return () => clearInterval(id);
+  }, []);
+
   const progressPct = sessionGoal ? Math.min(100, Math.round((wordCount / sessionGoal) * 100)) : null;
 
   return (
@@ -46,3 +56,4 @@ export function ZenStatusBar({ wordCount, sessionGoal, elapsedSec, hidden, textC
     </div>
   );
 }
+
