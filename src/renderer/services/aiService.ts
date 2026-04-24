@@ -1,3 +1,31 @@
+import { AIConnectionStatus, AIProviderId, AIRequest, AIResponse, AISettings } from '../types/ai';
+
+type IPCBridge = {
+  invoke: <T>(channel: string, ...args: unknown[]) => Promise<T>;
+};
+
+const writanBridge = (globalThis as { writan?: IPCBridge }).writan;
+
+const bridge: IPCBridge =
+  writanBridge ??
+  ({
+    invoke: async () => {
+      throw new Error(
+        'IPC bridge unavailable. Ensure the app is running in Electron, and the preload script exposes window.writan.invoke.'
+      );
+    }
+  } as IPCBridge);
+
 export const aiService = {
-  brainstorm: (prompt: string) => window.writan.brainstorm(prompt)
+  checkConnection: () => bridge.invoke<AIConnectionStatus[]>('ai:checkConnection'),
+  listModels: (provider: AIProviderId) => bridge.invoke<string[]>('ai:listModels', provider),
+  brainstorm: (request: AIRequest) => bridge.invoke<AIResponse>('ai:brainstorm', request),
+  getSuggestions: (request: AIRequest) => bridge.invoke<AIResponse>('ai:getSuggestions', request),
+  generatePrompt: (request: AIRequest) => bridge.invoke<AIResponse>('ai:generatePrompt', request),
+  generatePlotIdea: (request: AIRequest) => bridge.invoke<AIResponse>('ai:generatePlotIdea', request),
+  generateDialogue: (request: AIRequest) => bridge.invoke<AIResponse>('ai:generateDialogue', request),
+  analyzeStyle: (request: AIRequest) => bridge.invoke<AIResponse>('ai:analyzeStyle', request),
+  saveSettings: (settings: AISettings) => bridge.invoke<AISettings>('ai:saveSettings', settings),
+  getSettings: () => bridge.invoke<AISettings>('ai:getSettings'),
+  testConnection: (endpoint: string) => bridge.invoke<{ endpoint: string; reachable: boolean }>('ai:testConnection', endpoint)
 };

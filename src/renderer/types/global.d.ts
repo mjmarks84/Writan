@@ -1,4 +1,5 @@
 interface WritanAPI {
+  invoke: <T>(channel: string, ...args: unknown[]) => Promise<T>;
   openFileDialog: () => Promise<string[]>;
   saveFileDialog: () => Promise<string | undefined>;
   newDocument: () => Promise<{ title: string; content: string }>;

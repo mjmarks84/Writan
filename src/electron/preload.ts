@@ -1,6 +1,7 @@
 import { contextBridge, ipcRenderer } from 'electron';
 
 const api = {
+  invoke: <T>(channel: string, ...args: unknown[]) => ipcRenderer.invoke(channel, ...args) as Promise<T>,
   openFileDialog: () => ipcRenderer.invoke('file:openDialog') as Promise<string[]>,
   saveFileDialog: () => ipcRenderer.invoke('file:saveDialog') as Promise<string | undefined>,
   newDocument: () => ipcRenderer.invoke('document:new') as Promise<{ title: string; content: string }>,
